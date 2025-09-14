@@ -1,143 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lakshya</title>
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Handwritten Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
-  
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Lakshya</title>
+    <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div class="app-container">
-    <!-- Navigation Tabs -->
-    <nav class="tabs">
-      <button data-tab="dashboard">🏠 Dashboard</button>
-      <button data-tab="timer">⏱ Timer</button>
-      <button data-tab="tasks">📝 Tasks</button>
-      <button data-tab="syllabus">📚 Syllabus</button>
-      <button data-tab="notes">📖 Notes</button>
-      <button data-tab="progress">📊 Progress</button>
-    </nav>
+    <div class="container">
+        <h1>Lakshya-Another day, Another struggle, Another win, Another story</h1>
 
-    <!-- DASHBOARD -->
-    <section id="dashboard" class="tab-content active">
-      <h1>🏠 Dashboard</h1>
-      <div class="box quote-box">
-        <h2>Motivational Quote</h2>
-        <p id="quote"></p>
-      </div>
-      <div class="box timer-preview">
-        <h2>Pomodoro Status</h2>
-        <p id="timer-status">25:00</p>
-      </div>
-      <div class="box tasks-preview">
-        <h2>Today's Tasks</h2>
-        <progress id="task-progress" value="0" max="100"></progress>
-      </div>
-      <div class="box week-stats">
-        <h2>This Week Stats</h2>
-        <p id="week-hours">Study Hours: 0</p>
-        <p id="week-tasks">Tasks Done: 0</p>
-      </div>
-      <div class="box goals-panel">
-        <h2>🎯 Long-term Goals</h2>
-        <ul>
-          <li>Class X Score: 99%+</li>
-          <li>All Subjects: 100/100</li>
-          <li>CLAT Exam: AIR 1</li>
-          <li>UPSC Exam: AIR 1</li>
-        </ul>
-      </div>
-      <div class="box shloka">
-        <h2>📜 Daily Shloka</h2>
-        <textarea id="shloka-input" placeholder="Paste today's shloka here..."></textarea>
-      </div>
-    </section>
-
-    <!-- TIMER -->
-    <section id="timer" class="tab-content">
-      <h1>⏱ Pomodoro Timer</h1>
-      <div class="box">
-        <label>Subject: <input type="text" id="timer-subject"></label>
-        <label>Minutes: <input type="number" id="timer-minutes" value="25"></label>
-        <button id="start-timer">Start</button>
-        <button id="reset-timer">Reset</button>
-        <p id="timer-display">25:00</p>
-      </div>
-    </section>
-
-    <!-- TASKS -->
-    <section id="tasks" class="tab-content">
-      <h1>📝 To-Do List</h1>
-      <div class="box">
-        <input type="text" id="task-input" placeholder="New Task...">
-        <button id="add-task">Add</button>
-        <ul id="task-list"></ul>
-        <button id="clear-tasks">🔄 Refresh</button>
-      </div>
-    </section>
-
-    <!-- SYLLABUS -->
-    <section id="syllabus" class="tab-content">
-      <h1>📚 Syllabus</h1>
-      <div class="box">
-        <input type="text" id="subject-input" placeholder="Add Subject">
-        <button id="add-subject">Add Subject</button>
-        <div id="subjects"></div>
-      </div>
-    </section>
-
-    <!-- NOTES -->
-    <section id="notes" class="tab-content">
-      <h1>📖 Notes & Journal</h1>
-      <div class="box">
-        <input type="password" id="journal-password" placeholder="Enter Password">
-        <button id="unlock-journal">Unlock</button>
-        <div id="journal" class="hidden">
-          <textarea id="journal-entry" placeholder="Write your private journal..."></textarea>
-          <button id="save-journal">Save Entry</button>
-          <div id="journal-entries"></div>
+        <!-- Timer Section -->
+        <div class="card">
+            <h2>Study Timer</h2>
+            <input type="number" id="studyMinutes" placeholder="Study (min)" min="1"/>
+            <input type="number" id="breakMinutes" placeholder="Break (min)" min="1"/>
+            <button id="startTimer">Start Timer</button>
+            <div id="timerDisplay">00:00</div>
         </div>
-      </div>
-      <div class="box">
-        <h2>💡 Save Ideas</h2>
-        <textarea id="idea-input" placeholder="Write your idea..."></textarea>
-        <button id="save-idea">Save Idea</button>
-        <div id="ideas"></div>
-      </div>
-    </section>
 
-    <!-- PROGRESS -->
-    <section id="progress" class="tab-content">
-      <h1>📊 Progress & Analytics</h1>
-      <div class="box">
-        <canvas id="dailyHoursChart"></canvas>
-      </div>
-      <div class="box">
-        <canvas id="subjectProgressChart"></canvas>
-      </div>
-      <div class="box">
-        <h2>Streaks</h2>
-        <p id="current-streak">Current Streak: 0</p>
-        <p id="longest-streak">Longest Streak: 0</p>
-      </div>
-      <div class="box">
-        <h2>Monthly Goals</h2>
-        <p id="monthly-hours">Study Hours: 0/120</p>
-        <p id="monthly-tasks">Tasks Completed: 0/100</p>
-        <p id="monthly-consistency">Consistency: 0/30</p>
-      </div>
-    </section>
-  </div>
+        <!-- Motivational Quotes -->
+        <div class="card">
+            <h2>Motivation</h2>
+            <div id="quoteDisplay"></div>
+        </div>
 
-  <script src="script.js"></script>
+        <!-- Password Journal -->
+        <div class="card">
+            <h2>Journal</h2>
+            <input type="password" id="journalPassword" placeholder="Enter Password"/>
+            <textarea id="journalText" rows="5" placeholder="Write here..." disabled></textarea>
+            <button id="saveJournal">Save</button>
+        </div>
+
+        <!-- Idea List -->
+        <div class="card">
+            <h2>Ideas</h2>
+            <input type="text" id="ideaInput" placeholder="New idea"/>
+            <button id="addIdea">Add</button>
+            <ul id="ideaList"></ul>
+        </div>
+
+        <!-- Checklist -->
+        <div class="card">
+            <h2>Checklist</h2>
+            <input type="text" id="taskInput" placeholder="New task"/>
+            <button id="addTask">Add</button>
+            <ul id="taskList"></ul>
+            <button id="refreshTasks">Refresh Completed</button>
+        </div>
+
+        <!-- Custom Bars -->
+        <div class="card">
+            <h2>Trackers</h2>
+            <label>Study Hours (weekly): <input type="number" id="studyHours" min="0"/></label>
+            <label>Tasks Done: <input type="number" id="tasksDone" min="0"/></label>
+            <button id="saveTrackers">Save</button>
+            <div id="barStudy"></div>
+            <div id="barTasks"></div>
+        </div>
+
+        <!-- Long Term Goals -->
+        <div class="card">
+            <h2>Goals</h2>
+            <ul id="goalsList">
+                <li>AIR 1 CLAT</li>
+                <li>AIR 1 UPSC</li>
+                <li>100/100 in all subjects</li>
+                <li>99%+ in class X, XI and XII</li>
+            </ul>
+        </div>
+
+        <!-- Progress Tab -->
+        <div class="card">
+            <h2>Progress</h2>
+            <div id="dailyProgress"></div>
+            <div id="monthlySummary"></div>
+        </div>
+
+        <!-- Shloka -->
+        <div class="card">
+            <h2>Shloka of the Day</h2>
+            <textarea id="shlokaText" rows="3" readonly></textarea>
+            <button id="copyShloka">Copy</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
