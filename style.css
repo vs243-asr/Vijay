@@ -1,62 +1,626 @@
-body {
-    font-family: 'Patrick Hand', cursive, sans-serif;
-    background: #e0f7fa;
-    color: #01579b;
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Patrick Hand', cursive;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
 }
 
 .container {
-    max-width: 500px;
-    margin: auto;
-    padding: 10px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-h1 {
+header {
     text-align: center;
+    margin-bottom: 30px;
+    color: white;
+}
+
+header h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.tab-nav {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    color: white;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.tab-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-2px);
+}
+
+.tab-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: bold;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
 }
 
 .card {
     background: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    margin: 20px 0;
-    padding: 15px;
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
 }
 
-input, textarea, button {
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.quote-card h3, .shloka-card h3, .goals-card h3, .stats-card h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+}
+
+.quote-card p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: #555;
+    font-style: italic;
+}
+
+.shloka-card textarea {
     width: 100%;
-    padding: 8px;
-    margin-top: 8px;
-    border: 1px solid #b3e5fc;
-    border-radius: 8px;
+    height: 100px;
+    border: 2px solid #e0e6ff;
+    border-radius: 10px;
+    padding: 10px;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1.1rem;
+    resize: vertical;
+    margin-bottom: 10px;
 }
 
-button {
-    background: #0288d1;
+.shloka-card button {
+    background: #667eea;
     color: white;
     border: none;
+    padding: 10px 20px;
+    border-radius: 15px;
     cursor: pointer;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1rem;
+    transition: all 0.3s ease;
 }
 
-button:hover {
-    background: #0277bd;
+.shloka-card button:hover {
+    background: #5a6fd8;
+    transform: translateY(-2px);
 }
 
-#timerDisplay {
+.goals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.goal-item {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 15px;
+    border-radius: 15px;
+    font-size: 1.1rem;
     text-align: center;
-    font-size: 1.5em;
-    margin-top: 10px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
-#barStudy, #barTasks {
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.stat-item span:last-child {
+    font-weight: bold;
+    color: #667eea;
+}
+
+.timer-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.timer-display {
+    text-align: center;
+    margin: 30px 0;
+}
+
+#timer-time {
+    font-size: 4rem;
+    color: #667eea;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#timer-status {
+    font-size: 1.3rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.timer-controls button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.timer-controls button:hover {
+    background: #5a6fd8;
+    transform: translateY(-2px);
+}
+
+.setting-group {
+    margin-bottom: 15px;
+}
+
+.setting-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #667eea;
+    font-size: 1.1rem;
+}
+
+.setting-group input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e0e6ff;
+    border-radius: 10px;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1rem;
+}
+
+.progress-item {
+    margin-bottom: 20px;
+}
+
+.progress-item label {
+    display: block;
+    margin-bottom: 8px;
+    color: #667eea;
+    font-size: 1.1rem;
+}
+
+.progress-bar {
+    width: 100%;
     height: 20px;
-    background: #b3e5fc;
-    margin: 10px 0;
+    background: #e0e6ff;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.journal-login {
+    text-align: center;
+}
+
+.journal-login input {
+    padding: 12px;
+    border: 2px solid #e0e6ff;
+    border-radius: 10px;
+    margin-right: 10px;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1rem;
+    width: 200px;
+}
+
+.journal-login button, .journal-content button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.journal-login button:hover, .journal-content button:hover {
+    background: #5a6fd8;
+    transform: translateY(-2px);
+}
+
+.hidden {
+    display: none;
+}
+
+.journal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.journal-header span {
+    font-size: 1.2rem;
+    color: #667eea;
+    font-weight: bold;
+}
+
+#journal-entry {
+    width: 100%;
+    height: 200px;
+    border: 2px solid #e0e6ff;
+    border-radius: 10px;
+    padding: 15px;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1.1rem;
+    resize: vertical;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.idea-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.idea-input input {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #e0e6ff;
+    border-radius: 10px;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1rem;
+}
+
+.idea-input button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.idea-input button:hover {
+    background: #5a6fd8;
+    transform: translateY(-2px);
+}
+
+.ideas-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.idea-item {
+    background: #f8f9ff;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border-left: 4px solid #667eea;
+}
+
+.idea-date {
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+.idea-text {
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.task-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.task-input input {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px;
+    border: 2px solid #e0e6ff;
+    border-radius: 10px;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1rem;
+}
+
+.task-input button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.refresh-btn {
+    background: #e74c3c !important;
+}
+
+.task-input button:hover {
+    transform: translateY(-2px);
+}
+
+.task-item {
+    background: #f8f9ff;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 4px solid #667eea;
+}
+
+.task-text {
+    flex: 1;
+    font-size: 1.1rem;
+    margin-right: 15px;
+}
+
+.task-status {
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.status-not-started {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.status-half-finished {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+.status-complete {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.chart-container {
+    height: 300px;
+    display: flex;
+    align-items: end;
+    justify-content: space-around;
+    padding: 20px;
+    background: #f8f9ff;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.chart-bar {
+    background: linear-gradient(to top, #667eea, #764ba2);
+    width: 30px;
+    border-radius: 5px 5px 0 0;
+    margin: 0 5px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.chart-bar:hover {
+    transform: scale(1.1);
+}
+
+.chart-label {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.monthly-stat {
+    margin-bottom: 25px;
+}
+
+.monthly-stat label {
+    display: block;
+    margin-bottom: 8px;
+    color: #667eea;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+    
+    .tab-nav {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .tab-btn {
+        width: 200px;
+        margin-bottom: 5px;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .timer-container {
+        grid-template-columns: 1fr;
+    }
+    
+    #timer-time {
+        font-size: 2.5rem;
+    }
+    
+    .timer-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .timer-controls button {
+        width: 150px;
+        margin-bottom: 10px;
+    }
+    
+    .task-input {
+        flex-direction: column;
+    }
+    
+    .task-input input {
+        margin-bottom: 10px;
+    }
+    
+    .task-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .task-text {
+        margin-bottom: 10px;
+        margin-right: 0;
+    }
+    
+    .journal-login input {
+        width: 100%;
+        margin-bottom: 10px;
+        margin-right: 0;
+    }
+    
+    .idea-input {
+        flex-direction: column;
+    }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
     border-radius: 10px;
 }
 
-#dailyProgress, #monthlySummary {
-    font-size: 0.9em;
-    margin-top: 10px;
+::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #5a6fd8;
+}
+
+/* Animation for cards */
+.card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Notification styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #667eea;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
