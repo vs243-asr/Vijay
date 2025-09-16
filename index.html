@@ -1,90 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Lakshya</title>
-    <link rel="stylesheet" href="style.css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lakshya - Study Productivity App</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <h1>Lakshya-Another day, Another struggle, Another win, Another story</h1>
+        <header>
+            <h1><i class="fas fa-bullseye"></i> Lakshya</h1>
+            <p>Your Journey to Excellence</p>
+        </header>
 
-        <!-- Timer Section -->
-        <div class="card">
-            <h2>Study Timer</h2>
-            <input type="number" id="studyMinutes" placeholder="Study (min)" min="1"/>
-            <input type="number" id="breakMinutes" placeholder="Break (min)" min="1"/>
-            <button id="startTimer">Start Timer</button>
-            <div id="timerDisplay">00:00</div>
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+            <button class="tab-btn" data-tab="timer">Timer</button>
+            <button class="tab-btn" data-tab="journal">Journal</button>
+            <button class="tab-btn" data-tab="tasks">Tasks</button>
+            <button class="tab-btn" data-tab="progress">Progress</button>
+        </nav>
+
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="dashboard">
+            <div class="dashboard-grid">
+                <!-- Motivational Quote -->
+                <div class="card quote-card">
+                    <h3><i class="fas fa-quote-left"></i> Daily Motivation</h3>
+                    <p id="daily-quote"></p>
+                </div>
+
+                <!-- Shloka of the Day -->
+                <div class="card shloka-card">
+                    <h3><i class="fas fa-om"></i> Shloka of the Day</h3>
+                    <textarea id="shloka-input" placeholder="Paste today's shloka here..."></textarea>
+                    <button onclick="saveShloka()">Save Shloka</button>
+                </div>
+
+                <!-- Long Term Goals -->
+                <div class="card goals-card">
+                    <h3><i class="fas fa-trophy"></i> Long Term Goals</h3>
+                    <div class="goals-list">
+                        <div class="goal-item">🎯 AIR 1 CLAT</div>
+                        <div class="goal-item">🏆 AIR 1 UPSC</div>
+                        <div class="goal-item">💯 100/100 in all subjects</div>
+                        <div class="goal-item">📊 99%+ in class X, XI and XII</div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="card stats-card">
+                    <h3><i class="fas fa-chart-line"></i> Today's Progress</h3>
+                    <div class="stat-item">
+                        <span>Study Hours:</span>
+                        <span id="today-hours">0h 0m</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Tasks Completed:</span>
+                        <span id="today-tasks">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Current Streak:</span>
+                        <span id="current-streak">0 days</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Motivational Quotes -->
-        <div class="card">
-            <h2>Motivation</h2>
-            <div id="quoteDisplay"></div>
+        <!-- Timer Tab -->
+        <div class="tab-content" id="timer">
+            <div class="timer-container">
+                <div class="card timer-card">
+                    <h3><i class="fas fa-clock"></i> Pomodoro Timer</h3>
+                    <div class="timer-display">
+                        <div id="timer-time">25:00</div>
+                        <div id="timer-status">Ready to Focus</div>
+                    </div>
+                    <div class="timer-controls">
+                        <button id="start-timer" onclick="startTimer()">Start</button>
+                        <button id="pause-timer" onclick="pauseTimer()">Pause</button>
+                        <button id="reset-timer" onclick="resetTimer()">Reset</button>
+                    </div>
+                </div>
+
+                <div class="card timer-settings">
+                    <h3><i class="fas fa-cog"></i> Timer Settings</h3>
+                    <div class="setting-group">
+                        <label>Study Duration (minutes):</label>
+                        <input type="number" id="study-duration" value="25" min="1" max="120">
+                    </div>
+                    <div class="setting-group">
+                        <label>Break Duration (minutes):</label>
+                        <input type="number" id="break-duration" value="5" min="1" max="30">
+                    </div>
+                    <div class="setting-group">
+                        <label>Long Break Duration (minutes):</label>
+                        <input type="number" id="long-break-duration" value="15" min="1" max="60">
+                    </div>
+                </div>
+
+                <div class="card progress-bars">
+                    <h3><i class="fas fa-chart-bar"></i> Weekly Progress</h3>
+                    <div class="progress-item">
+                        <label>Hours Studied This Week:</label>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="weekly-hours-progress"></div>
+                        </div>
+                        <span id="weekly-hours-text">0/40 hours</span>
+                    </div>
+                    <div class="progress-item">
+                        <label>Tasks Completed This Week:</label>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="weekly-tasks-progress"></div>
+                        </div>
+                        <span id="weekly-tasks-text">0/20 tasks</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Password Journal -->
-        <div class="card">
-            <h2>Journal</h2>
-            <input type="password" id="journalPassword" placeholder="Enter Password"/>
-            <textarea id="journalText" rows="5" placeholder="Write here..." disabled></textarea>
-            <button id="saveJournal">Save</button>
+        <!-- Journal Tab -->
+        <div class="tab-content" id="journal">
+            <div class="journal-container">
+                <div class="card journal-card">
+                    <h3><i class="fas fa-book"></i> Daily Journal</h3>
+                    <div id="journal-login" class="journal-login">
+                        <input type="password" id="journal-password" placeholder="Enter password">
+                        <button onclick="unlockJournal()">Unlock Journal</button>
+                    </div>
+                    <div id="journal-content" class="journal-content hidden">
+                        <div class="journal-header">
+                            <span id="journal-date"></span>
+                            <button onclick="lockJournal()">Lock Journal</button>
+                        </div>
+                        <textarea id="journal-entry" placeholder="Write your thoughts, reflections, and progress..."></textarea>
+                        <button onclick="saveJournal()">Save Entry</button>
+                    </div>
+                </div>
+
+                <div class="card ideas-card">
+                    <h3><i class="fas fa-lightbulb"></i> Ideas List</h3>
+                    <div class="idea-input">
+                        <input type="text" id="new-idea" placeholder="Enter your idea...">
+                        <button onclick="addIdea()">Add Idea</button>
+                    </div>
+                    <div id="ideas-list" class="ideas-list"></div>
+                </div>
+            </div>
         </div>
 
-        <!-- Idea List -->
-        <div class="card">
-            <h2>Ideas</h2>
-            <input type="text" id="ideaInput" placeholder="New idea"/>
-            <button id="addIdea">Add</button>
-            <ul id="ideaList"></ul>
-        </div>
+        <!-- Tasks Tab -->
+        <div class="tab-content" id="tasks">
+            <div class="tasks-container">
+                <div class="card task-input-card">
+                    <h3><i class="fas fa-tasks"></i> Task Manager</h3>
+                    <div class="task-input">
+                        <input type="text" id="new-task" placeholder="Enter new task...">
+                        <button onclick="addTask()">Add Task</button>
+                        <button onclick="clearCompleted()" class="refresh-btn">Clear Completed</button>
+                    </div>
+                </div>
 
-        <!-- Checklist -->
-        <div class="card">
-            <h2>Checklist</h2>
-            <input type="text" id="taskInput" placeholder="New task"/>
-            <button id="addTask">Add</button>
-            <ul id="taskList"></ul>
-            <button id="refreshTasks">Refresh Completed</button>
-        </div>
-
-        <!-- Custom Bars -->
-        <div class="card">
-            <h2>Trackers</h2>
-            <label>Study Hours (weekly): <input type="number" id="studyHours" min="0"/></label>
-            <label>Tasks Done: <input type="number" id="tasksDone" min="0"/></label>
-            <button id="saveTrackers">Save</button>
-            <div id="barStudy"></div>
-            <div id="barTasks"></div>
-        </div>
-
-        <!-- Long Term Goals -->
-        <div class="card">
-            <h2>Goals</h2>
-            <ul id="goalsList">
-                <li>AIR 1 CLAT</li>
-                <li>AIR 1 UPSC</li>
-                <li>100/100 in all subjects</li>
-                <li>99%+ in class X, XI and XII</li>
-            </ul>
+                <div class="card tasks-list-card">
+                    <div id="tasks-list" class="tasks-list"></div>
+                </div>
+            </div>
         </div>
 
         <!-- Progress Tab -->
-        <div class="card">
-            <h2>Progress</h2>
-            <div id="dailyProgress"></div>
-            <div id="monthlySummary"></div>
-        </div>
+        <div class="tab-content" id="progress">
+            <div class="progress-container">
+                <div class="card daily-chart-card">
+                    <h3><i class="fas fa-chart-line"></i> Daily Study Hours</h3>
+                    <div id="daily-chart" class="chart-container"></div>
+                </div>
 
-        <!-- Shloka -->
-        <div class="card">
-            <h2>Shloka of the Day</h2>
-            <textarea id="shlokaText" rows="3" readonly></textarea>
-            <button id="copyShloka">Copy</button>
+                <div class="card monthly-stats-card">
+                    <h3><i class="fas fa-calendar-alt"></i> Monthly Summary</h3>
+                    <div class="monthly-stat">
+                        <label>Total Study Hours:</label>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="monthly-hours-progress"></div>
+                        </div>
+                        <span id="monthly-hours-text">0/120 hours</span>
+                    </div>
+                    <div class="monthly-stat">
+                        <label>Tasks Completed:</label>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="monthly-tasks-progress"></div>
+                        </div>
+                        <span id="monthly-tasks-text">0/80 tasks</span>
+                    </div>
+                    <div class="monthly-stat">
+                        <label>Consistency (Active Days):</label>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="monthly-consistency-progress"></div>
+                        </div>
+                        <span id="monthly-consistency-text">0/30 days</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
