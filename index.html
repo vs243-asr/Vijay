@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lakshya</title>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Lakshya</h1>
+    </header>
+    <nav>
+        <button onclick="showTab('dashboard')">Dashboard</button>
+        <button onclick="showTab('timer')">Timer</button>
+        <button onclick="showTab('todo')">To-Do</button>
+        <button onclick="showTab('syllabus')">Syllabus</button>
+        <button onclick="showTab('journal')">Journal</button>
+        <button onclick="showTab('shloka')">Shloka</button>
+        <button onclick="showTab('ideas')">Ideas</button>
+        <button onclick="showTab('analysis')">Analysis</button>
+        <button onclick="showTab('progress')">Progress</button>
+    </nav>
+    <main>
+        <!-- Dashboard -->
+        <section id="dashboard" class="tab-content">
+            <div class="card">
+                <h2>Today's Tasks</h2>
+                <ul id="today-tasks"></ul>
+            </div>
+            <div class="card">
+                <h2>Timer Status</h2>
+                <div id="timer-status">00:00</div>
+                <div class="progress-bar"><div id="timer-progress"></div></div>
+            </div>
+            <div class="card">
+                <h2>Productivity Stats</h2>
+                <p>Tasks Completed Today: <span id="tasks-today">0</span></p>
+                <p>Focus Time Today: <span id="focus-today">0</span> min</p>
+            </div>
+            <div class="card">
+                <h2>Motivational Message</h2>
+                <p id="motivation"></p>
+            </div>
+            <div class="card">
+                <h2>Long-term Goals</h2>
+                <ul>
+                    <li>99%+ in X, XI, and XII</li>
+                    <li>100/100 in all subjects</li>
+                    <li>CLAT AIR 1</li>
+                    <li>UPSC AIR 1</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Timer -->
+        <section id="timer" class="tab-content">
+            <div class="card">
+                <h2>Adjustable Timer</h2>
+                <label>Focus (min): <input type="number" id="focus-min" value="25" min="1"></label>
+                <label>Break (min): <input type="number" id="break-min" value="5" min="1"></label>
+                <button onclick="startTimer()">Start</button>
+                <button onclick="pauseTimer()">Pause</button>
+                <button onclick="resetTimer()">Reset</button>
+                <div id="timer-display">25:00</div>
+                <div class="circular-progress">
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="#E3F2FD" stroke-width="5"></circle>
+                        <circle id="timer-circle" cx="50" cy="50" r="45" fill="none" stroke="#2196F3" stroke-width="5" stroke-dasharray="282.74" stroke-dashoffset="282.74"></circle>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- To-Do -->
+        <section id="todo" class="tab-content">
+            <div class="card">
+                <h2>To-Do List</h2>
+                <input type="text" id="task-title" placeholder="Title">
+                <input type="date" id="task-deadline">
+                <input type="text" id="task-subject" placeholder="Subject">
+                <button onclick="addTask()">Add Task</button>
+                <button onclick="clearCompleted()">Clear Completed</button>
+                <div class="todo-views">
+                    <button onclick="showTodoView('today')">Today</button>
+                    <button onclick="showTodoView('upcoming')">Upcoming</button>
+                    <button onclick="showTodoView('all')">All</button>
+                </div>
+                <ul id="todo-list"></ul>
+            </div>
+        </section>
+
+        <!-- Syllabus -->
+        <section id="syllabus" class="tab-content">
+            <div class="card">
+                <h2>Subject-Wise Syllabus Tracker</h2>
+                <input type="text" id="new-subject" placeholder="Add Subject">
+                <button onclick="addSubject()">Add</button>
+                <div id="subjects-list"></div>
+            </div>
+        </section>
+
+        <!-- Journal -->
+        <section id="journal" class="tab-content">
+            <div class="card">
+                <h2>Locked Journal</h2>
+                <button onclick="unlockJournal()">Unlock</button>
+                <div id="journal-content" style="display:none;">
+                    <textarea id="journal-entry" placeholder="Write entry..."></textarea>
+                    <button onclick="saveEntry()">Save</button>
+                    <ul id="entries-list"></ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shloka -->
+        <section id="shloka" class="tab-content">
+            <div class="card">
+                <h2>Shloka</h2>
+                <textarea id="shloka-text" placeholder="Paste your shloka or notes..."></textarea>
+                <p id="shloka-display"></p>
+            </div>
+        </section>
+
+        <!-- Ideas -->
+        <section id="ideas" class="tab-content">
+            <div class="card">
+                <h2>Ideas and Notes Saver</h2>
+                <textarea id="idea-note" placeholder="Quick note..."></textarea>
+                <button onclick="addIdea()">Save</button>
+                <label><input type="checkbox" id="pin-idea"> Pin</label>
+                <div class="sort-ideas">
+                    <button onclick="sortIdeas('time')">By Time</button>
+                    <button onclick="sortIdeas('pinned')">Pinned First</button>
+                </div>
+                <ul id="ideas-list"></ul>
+            </div>
+        </section>
+
+        <!-- Analysis -->
+        <section id="analysis" class="tab-content">
+            <div class="card">
+                <h2>Talent & Pattern Analysis (Weekly)</h2>
+                <div id="weekly-stats">
+                    <p>Tasks: <span id="weekly-tasks">0</span></p>
+                    <p>Focus Sessions: <span id="weekly-focus">0</span></p>
+                    <p>Syllabus Progress: <span id="weekly-syllabus">0</span>%</p>
+                </div>
+                <div class="horizontal-bar">
+                    <div>Study Hours</div>
+                    <div class="bar-container"><div id="hours-bar" style="width:0%"></div></div>
+                </div>
+                <div class="horizontal-bar">
+                    <div>Tasks Done</div>
+                    <div class="bar-container"><div id="tasks-bar" style="width:0%"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress -->
+        <section id="progress" class="tab-content">
+            <div class="card">
+                <h2>Progress Visualization</h2>
+                <canvas id="syllabus-pie" width="200" height="200"></canvas>
+                <canvas id="pomodoro-line" width="400" height="200"></canvas>
+                <canvas id="tasks-line" width="400" height="200"></canvas>
+                <div class="horizontal-bar">
+                    <div>Monthly Study Hours</div>
+                    <div class="bar-container"><div id="monthly-hours" style="width:0%"></div></div>
+                </div>
+                <div class="horizontal-bar">
+                    <div>Completed Tasks</div>
+                    <div class="bar-container"><div id="monthly-tasks" style="width:0%"></div></div>
+                </div>
+                <div class="horizontal-bar">
+                    <div>Consistency (Days/30)</div>
+                    <div class="bar-container"><div id="consistency-bar" style="width:0%"></div></div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
