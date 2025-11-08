@@ -22,8 +22,6 @@ const motivations = [
     "शीलम् परम भूषणम्",
     "वीर भोग्या वसुंधरा",
     "नभः स्पृशं दीप्तम्",
-    "Hazaron ki bheed me se ubhar ke aaunga, mujhe me kabiliyat hai mai kar ke dikhaunga",
-    "Padhan hai, Phodna hai, Kehar macha dena hai, Aag laga deni hai.",
     "We are not part of the crowd. We are the reason for the crowd.",
     "Discipline is the highest virtue and the key to dominate.",
     "Every minute wasted is NLSIU moving away.",
