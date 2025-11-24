@@ -1,27 +1,12 @@
-// Global variables
-let currentTab = 'dashboard';
-let timerInterval;
-let timerTime = 25 * 60;
-let isRunning = false;
-let isFocus = true;
-let journalUnlocked = false;
-let todoView = 'today';
+// --- CONSTANTS AND INITIAL DATA LOAD ---
 
-// LocalStorage keys
-const STORAGE_KEYS = {
-    tasks: 'lakshya_tasks',
-    subjects: 'lakshya_subjects',
-    journal: 'lakshya_journal',
-    shloka: 'lakshya_shloka',
-    ideas: 'lakshya_ideas',
-    history: 'lakshya_history'
-};
-
-// Motivational messages (15-day cycle)
-const motivations = [
+const PASSWORD = 'jai bhavani';
+const MOTIVATIONAL_MESSAGES = [
     "शीलम् परम भूषणम्",
     "वीर भोग्या वसुंधरा",
     "नभः स्पृशं दीप्तम्",
+    "Hazaron ki bheed me se ubhar ke aaunga, mujhe me kabiliyat hai mai kar ke dikhaunga",
+    "Padhan hai, Phodna hai, Kehar macha dena hai, Aag laga deni hai.",
     "We are not part of the crowd. We are the reason for the crowd.",
     "Discipline is the highest virtue and the key to dominate.",
     "Every minute wasted is NLSIU moving away.",
@@ -34,479 +19,537 @@ const motivations = [
     "Work while they waste, Study while they sleep, prepare while they play and rise while they regret."
 ];
 
-// Initialize app
-document.addEventListener('DOMContentLoaded', function() {
-    showTab('dashboard');
-    loadAllData();
-    updateMotivation();
-    updateDashboard();
-    updateTimerStatus();
-    updateWeeklyAnalysis();
-    updateProgressBars();
-    updateCharts();
+let tasks = loadFromLocal('tasks', []);
+let subjects = loadFromLocal('subjects', []);
+let journalEntries = loadFromLocal('journalEntries', []);
+let notes = loadFromLocal('notes', []);
+let shloka = loadFromLocal('shloka', null);
+let focusSessions = loadFromLocal('focusSessions', {
+    today: 0,
+    daily: {} // Stores completed sessions by date: { '2025-11-24': 5 }
+});
+let customBars = loadFromLocal('customBars', {
+    weeklyHours: 0,
+    weeklyTasks: 0,
+    monthlyHours: 0,
+    monthlyTasks: 0,
+    consistency: 0
 });
 
-// Tab switching
-function showTab(tab) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.getElementById(tab).classList.add('active');
-    document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-    currentTab = tab;
-    if (tab === 'todo') renderTodoList();
-    if (tab === 'syllabus') renderSubjects();
-    if (tab === 'journal' && journalUnlocked) renderEntries();
-    if (tab === 'shloka') renderShloka();
-    if (tab === 'ideas') renderIdeas();
-    if (tab === 'analysis') updateWeeklyAnalysis();
-    if (tab === 'progress') updateCharts();
+// Timer State
+let timerInterval = null;
+let isFocusMode = true;
+let isPaused = true;
+let duration = 25 * 60; // Default focus time in seconds
+let originalDuration = 25 * 60; // Used for progress bar calculation
+const CIRCLE_RADIUS = 45;
+const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
+
+// Chart Instances
+let syllabusPieChart, focusLineChart, tasksLineChart;
+
+// Current Task Filter
+let currentTaskFilter = 'All';
+
+// --- LOCAL STORAGE FUNCTIONS ---
+
+function loadFromLocal(key, defaultValue) {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : defaultValue;
 }
 
-// Load all data from localStorage
-function loadAllData() {
-    loadTasks();
-    loadSubjects();
-    loadJournal();
-    loadShloka();
-    loadIdeas();
-    loadHistory();
+function saveToLocal(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
 }
 
-// Update motivation
-function updateMotivation() {
-    const today = new Date().getDate();
-    const msg = motivations[(today - 1) % 15];
-    document.getElementById('motivation').textContent = msg;
+// --- NAVIGATION AND INITIALIZATION ---
+
+function showSection(sectionId) {
+    document.querySelectorAll('.page').forEach(section => {
+        section.classList.remove('active');
+    });
+    document.getElementById(sectionId).classList.add('active');
+
+    // Trigger specific updates when navigating
+    if (sectionId === 'dashboard') updateDashboard();
+    if (sectionId === 'timer') updateTimerDisplay();
+    if (sectionId === 'todo') renderTasks();
+    if (sectionId === 'syllabus') renderSubjects();
+    if (sectionId === 'notes') renderNotes();
+    if (sectionId === 'analysis') setupCharts();
+    if (sectionId === 'journal') checkJournalLock();
 }
 
-// Timer functions
+function checkJournalLock() {
+    if (localStorage.getItem('journalUnlocked') === 'true') {
+        document.getElementById('journal-login').classList.add('hidden');
+        document.getElementById('journal-content').classList.remove('hidden');
+        renderJournalEntries();
+    } else {
+        document.getElementById('journal-login').classList.remove('hidden');
+        document.getElementById('journal-content').classList.add('hidden');
+        document.getElementById('journal-password').value = '';
+    }
+}
+
+function initializeApp() {
+    showSection('dashboard');
+    setDailyMotivation();
+    updateDashboard();
+    renderShloka();
+    initCustomBars();
+    // Setting up the initial timer display
+    updateTimerDisplay();
+}
+
+// --- DAILY MOTIVATION ---
+
+function setDailyMotivation() {
+    const today = new Date().toDateString();
+    let lastUpdate = localStorage.getItem('motivationLastUpdate');
+    let index = parseInt(localStorage.getItem('motivationIndex')) || 0;
+
+    if (lastUpdate !== today) {
+        // Calculate new index (15 day reset)
+        if (index >= MOTIVATIONAL_MESSAGES.length - 1) {
+            index = 0;
+        } else {
+            index = (index + 1) % MOTIVATIONAL_MESSAGES.length;
+        }
+        
+        localStorage.setItem('motivationLastUpdate', today);
+        localStorage.setItem('motivationIndex', index.toString());
+    }
+
+    document.getElementById('daily-motivation').textContent = MOTIVATIONAL_MESSAGES[index];
+}
+
+// --- DASHBOARD UPDATES ---
+
+function updateDashboard() {
+    // 1. Task Counts
+    const todayTasks = tasks.filter(t => 
+        t.deadline === new Date().toISOString().slice(0, 10) && t.status !== 'Complete'
+    );
+    document.getElementById('today-tasks-count').textContent = todayTasks.length;
+    
+    // Render dashboard tasks
+    const dashList = document.getElementById('dashboard-today-tasks');
+    dashList.innerHTML = '';
+    if (todayTasks.length === 0) {
+        dashList.innerHTML = '<li>You are all clear!</li>';
+    } else {
+        todayTasks.slice(0, 5).forEach(task => {
+            const li = document.createElement('li');
+            const statusClass = task.status === 'Complete' ? 'dashboard-task-complete' : 
+                                task.status === 'HalfFinished' ? 'dashboard-task-inprogress' : 
+                                'dashboard-task-notstarted';
+            li.innerHTML = `<span class="${statusClass}">• ${task.title}</span>`;
+            dashList.appendChild(li);
+        });
+    }
+
+    // 2. Syllabus Progress
+    let totalTopics = 0;
+    let completedTopics = 0;
+    subjects.forEach(sub => {
+        totalTopics += sub.topics.length;
+        completedTopics += sub.topics.filter(t => t.completed).length;
+    });
+    const syllabusPercent = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
+    document.getElementById('stats-syllabus-overall').textContent = `${syllabusPercent}%`;
+
+    // 3. Productivity Stats
+    const todayDate = new Date().toISOString().slice(0, 10);
+    const completedTasksThisWeek = tasks.filter(t => t.status === 'Complete' && isThisWeek(new Date(t.completedDate)));
+    
+    document.getElementById('stats-focus-today').textContent = focusSessions.daily[todayDate] || 0;
+    document.getElementById('stats-tasks-week').textContent = completedTasksThisWeek.length;
+    
+    // 4. Timer Status
+    document.getElementById('timer-status').textContent = isPaused ? "Ready to Focus" : 
+        isFocusMode ? "Focusing" : "On Break";
+    document.getElementById('timer-display-dashboard').textContent = formatTime(duration);
+    
+    // 5. Long Term Goal Progress (Simple Mock based on syllabus/tasks)
+    const longTermBar = document.getElementById('long-term-progress');
+    const averageProgress = Math.min(100, Math.round((syllabusPercent + (completedTasksThisWeek.length / 10) * 10) / 2)); // Mock calculation
+    longTermBar.innerHTML = `<div class="progress-bar-container"><div class="progress-bar" style="width: ${averageProgress}%;">GOAL: ${averageProgress}%</div></div>`;
+}
+
+function isThisWeek(date) {
+    const now = new Date();
+    const firstDayOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+    const lastDayOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+    return date >= firstDayOfWeek && date <= lastDayOfWeek;
+}
+
+// --- TIMER FUNCTIONALITY (Pomodoro) ---
+
+function formatTime(totalSeconds) {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function updateTimerDisplay() {
+    document.getElementById('timer-display').textContent = formatTime(duration);
+    document.getElementById('timer-mode').textContent = isFocusMode ? "Focus Mode" : "Break Mode";
+    updateTimerProgress();
+    // Also update dashboard
+    if (document.getElementById('dashboard').classList.contains('active')) {
+        updateDashboard();
+    }
+}
+
+function updateTimerProgress() {
+    const percentage = 1 - (duration / originalDuration);
+    const offset = CIRCLE_CIRCUMFERENCE * percentage;
+    const svg = document.getElementById('timer-progress-svg');
+    svg.style.strokeDasharray = `${CIRCLE_CIRCUMFERENCE}`;
+    svg.style.strokeDashoffset = `${offset}`;
+}
+
 function startTimer() {
-    if (isRunning) return;
-    const focusMin = parseInt(document.getElementById('focus-min').value) || 25;
-    const breakMin = parseInt(document.getElementById('break-min').value) || 5;
-    timerTime = isFocus ? focusMin * 60 : breakMin * 60;
-    isRunning = true;
-    timerInterval = setInterval(updateTimer, 1000);
+    if (!isPaused) return;
+
+    isPaused = false;
+    document.getElementById('start-pause-button').textContent = 'Pause';
+
+    timerInterval = setInterval(() => {
+        duration--;
+        updateTimerDisplay();
+
+        if (duration <= 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            
+            if (isFocusMode) {
+                // Focus session complete
+                const todayDate = new Date().toISOString().slice(0, 10);
+                focusSessions.daily[todayDate] = (focusSessions.daily[todayDate] || 0) + 1;
+                focusSessions.today = (focusSessions.daily[todayDate] || 0);
+                saveToLocal('focusSessions', focusSessions);
+                
+                // Switch to break mode
+                isFocusMode = false;
+                originalDuration = parseInt(document.getElementById('break-duration').value) * 60;
+                duration = originalDuration;
+                alert('Focus Session Complete! Time for a break.');
+            } else {
+                // Break session complete
+                isFocusMode = true;
+                originalDuration = parseInt(document.getElementById('focus-duration').value) * 60;
+                duration = originalDuration;
+                alert('Break is over! Time to focus.');
+            }
+            
+            isPaused = true;
+            document.getElementById('start-pause-button').textContent = 'Start';
+            updateTimerDisplay();
+        }
+    }, 1000);
 }
 
 function pauseTimer() {
-    isRunning = false;
-    if (timerInterval) clearInterval(timerInterval);
+    if (isPaused) return;
+    clearInterval(timerInterval);
+    timerInterval = null;
+    isPaused = true;
+    document.getElementById('start-pause-button').textContent = 'Start';
 }
 
 function resetTimer() {
     pauseTimer();
-    isFocus = true;
-    timerTime = parseInt(document.getElementById('focus-min').value) * 60 || 1500;
+    isFocusMode = true;
+    originalDuration = parseInt(document.getElementById('focus-duration').value) * 60;
+    duration = originalDuration;
+    document.getElementById('start-pause-button').textContent = 'Start';
     updateTimerDisplay();
-    updateTimerProgress();
 }
 
-function updateTimer() {
-    if (timerTime <= 0) {
-        isRunning = false;
-        clearInterval(timerInterval);
-        isFocus = !isFocus;
-        if (!isFocus) {
-            // Log focus session
-            logHistory('focus');
-        }
-        resetTimer();
+document.getElementById('start-pause-button').addEventListener('click', () => {
+    isPaused ? startTimer() : pauseTimer();
+});
+
+document.getElementById('reset-button').addEventListener('click', resetTimer);
+
+document.getElementById('apply-timer-settings').addEventListener('click', () => {
+    pauseTimer();
+    const focusMin = parseInt(document.getElementById('focus-duration').value);
+    const breakMin = parseInt(document.getElementById('break-duration').value);
+    
+    if (focusMin < 1 || breakMin < 1 || isNaN(focusMin) || isNaN(breakMin)) {
+        alert('Please enter valid durations (> 0).');
         return;
     }
-    timerTime--;
+    
+    // Only reset duration if in the mode that's being changed
+    if (isFocusMode) {
+        originalDuration = focusMin * 60;
+        duration = originalDuration;
+    } else {
+        originalDuration = breakMin * 60;
+        duration = originalDuration;
+    }
+    
     updateTimerDisplay();
-    updateTimerProgress();
-}
+    alert('Timer settings applied.');
+});
 
-function updateTimerDisplay() {
-    const mins = Math.floor(timerTime / 60);
-    const secs = timerTime % 60;
-    document.getElementById('timer-display').textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    document.getElementById('timer-status').textContent = document.getElementById('timer-display').textContent;
-}
+// --- TO-DO LIST ---
 
-function updateTimerProgress() {
-    const maxTime = isFocus ? parseInt(document.getElementById('focus-min').value) * 60 : parseInt(document.getElementById('break-min').value) * 60;
-    const progress = ((maxTime - timerTime) / maxTime) * 100;
-    const circumference = 282.74;
-    document.getElementById('timer-circle').style.strokeDashoffset = circumference - (progress / 100) * circumference;
-    document.getElementById('timer-progress').style.width = progress + '%';
-}
-
-// To-Do functions
-let tasks = JSON.parse(localStorage.getItem(STORAGE_KEYS.tasks)) || [];
-
-function addTask() {
+document.getElementById('add-task-form').addEventListener('submit', function(e) {
+    e.preventDefault();
     const title = document.getElementById('task-title').value;
     const deadline = document.getElementById('task-deadline').value;
     const subject = document.getElementById('task-subject').value;
-    if (title) {
-        tasks.push({ title, deadline, subject, status: 'Not Started', id: Date.now() });
-        saveTasks();
-        renderTodoList();
-        document.getElementById('task-title').value = '';
-        document.getElementById('task-deadline').value = '';
-        document.getElementById('task-subject').value = '';
-    }
-}
 
-function renderTodoList() {
-    const list = document.getElementById('todo-list');
-    let filtered = tasks;
-    const today = new Date().toISOString().split('T')[0];
-    if (todoView === 'today') filtered = tasks.filter(t => t.deadline === today || !t.deadline);
-    else if (todoView === 'upcoming') filtered = tasks.filter(t => t.deadline > today);
-    list.innerHTML = filtered.map(task => `
-        <li>
-            <strong>${task.title}</strong> - ${task.subject} ${task.deadline ? `(Due: ${task.deadline})` : ''}
-            <select onchange="updateTaskStatus(${task.id}, this.value)">
-                <option ${task.status === 'Not Started' ? 'selected' : ''}>Not Started</option>
-                <option ${task.status === 'Half Finished' ? 'selected' : ''}>Half Finished</option>
-                <option ${task.status === 'Complete' ? 'selected' : ''}>Complete</option>
-            </select>
-        </li>
-    `).join('');
-    updateDashboard();
-}
+    const newTask = {
+        id: Date.now(),
+        title,
+        deadline,
+        subject,
+        status: 'Not Started',
+        completedDate: null
+    };
 
-function updateTaskStatus(id, status) {
-    const task = tasks.find(t => t.id === id);
-    if (task) task.status = status;
-    saveTasks();
-    renderTodoList();
-    if (status === 'Complete') logHistory('task');
-}
-
-function showTodoView(view) {
-    todoView = view;
-    renderTodoList();
-}
-
-function clearCompleted() {
-    tasks = tasks.filter(t => t.status !== 'Complete');
-    saveTasks();
-    renderTodoList();
-}
-
-function saveTasks() {
-    localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(tasks));
-}
-
-function loadTasks() {
-    tasks = JSON.parse(localStorage.getItem(STORAGE_KEYS.tasks)) || [];
-}
-
-// Dashboard update
-function updateDashboard() {
-    const today = new Date().toISOString().split('T')[0];
-    const todayTasks = tasks.filter(t => (t.deadline === today || !t.deadline) && t.status === 'Complete').length;
-    document.getElementById('tasks-today').textContent = todayTasks;
-    // Focus today from history
-    const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.history)) || [];
-    const todayFocus = history.filter(h => h.date === today).reduce((sum, h) => sum + (h.focus || 0), 0) / 60;
-    document.getElementById('focus-today').textContent = todayFocus.toFixed(1);
-    // Today's tasks list
-    const todayList = document.getElementById('today-tasks');
-    const pendingToday = tasks.filter(t => (t.deadline === today || !t.deadline) && t.status !== 'Complete');
-    todayList.innerHTML = pendingToday.map(t => `<li>${t.title} - ${t.status}</li>`).join('');
-}
-
-// Syllabus functions
-let subjects = JSON.parse(localStorage.getItem(STORAGE_KEYS.subjects)) || [];
-
-function addSubject() {
-    const name = document.getElementById('new-subject').value;
-    if (name) {
-        subjects.push({ name, topics: [], id: Date.now() });
-        saveSubjects();
-        renderSubjects();
-        document.getElementById('new-subject').value = '';
-    }
-}
-
-function renderSubjects() {
-    const container = document.getElementById('subjects-list');
-    container.innerHTML = subjects.map(sub => {
-        const completed = sub.topics.filter(t => t.completed).length;
-        const total = sub.topics.length;
-        const progress = total > 0 ? (completed / total * 100) : 0;
-        return `
-            <div>
-                <h3>${sub.name}</h3>
-                <div class="progress-bar"><div style="width:${progress}%"></div></div>
-                <p>${completed}/${total} completed</p>
-                <input type="text" placeholder="Add topic" id="topic-${sub.id}">
-                <button onclick="addTopic(${sub.id})">Add Topic</button>
-                <ul>
-                    ${sub.topics.map((topic, idx) => `
-                        <li>
-                            <input type="checkbox" ${topic.completed ? 'checked' : ''} onchange="toggleTopic(${sub.id}, ${idx})">
-                            ${topic.name}
-                        </li>
-                    `).join('')}
-                </ul>
-            </div>
-        `;
-    }).join('');
-}
-
-function addTopic(subId) {
-    const input = document.getElementById(`topic-${subId}`);
-    const name = input.value;
-    if (name) {
-        const sub = subjects.find(s => s.id === subId);
-        sub.topics.push({ name, completed: false });
-        saveSubjects();
-        renderSubjects();
-        input.value = '';
-    }
-}
-
-function toggleTopic(subId, idx) {
-    const sub = subjects.find(s => s.id === subId);
-    sub.topics[idx].completed = !sub.topics[idx].completed;
-    saveSubjects();
-    renderSubjects();
-    updateWeeklyAnalysis();
-    updateCharts();
-}
-
-function saveSubjects() {
-    localStorage.setItem(STORAGE_KEYS.subjects, JSON.stringify(subjects));
-}
-
-function loadSubjects() {
-    subjects = JSON.parse(localStorage.getItem(STORAGE_KEYS.subjects)) || [];
-}
-
-// Journal
-function unlockJournal() {
-    const pass = prompt('Enter password:');
-    if (pass === 'jai bhavani') {
-        journalUnlocked = true;
-        document.getElementById('journal-content').style.display = 'block';
-        renderEntries();
-    } else {
-        alert('Incorrect password');
-    }
-}
-
-let entries = [];
-
-function loadJournal() {
-    if (journalUnlocked) {
-        entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.journal)) || [];
-    }
-}
-
-function saveEntry() {
-    const text = document.getElementById('journal-entry').value;
-    if (text) {
-        entries.push({ text, date: new Date().toISOString(), id: Date.now() });
-        localStorage.setItem(STORAGE_KEYS.journal, JSON.stringify(entries));
-        document.getElementById('journal-entry').value = '';
-        renderEntries();
-    }
-}
-
-function renderEntries() {
-    const list = document.getElementById('entries-list');
-    list.innerHTML = entries.map(entry => `
-        <li>
-            <p>${entry.text}</p>
-            <small>${new Date(entry.date).toLocaleDateString()}</small>
-            <button onclick="deleteEntry(${entry.id})">Delete</button>
-        </li>
-    `).join('');
-}
-
-function deleteEntry(id) {
-    entries = entries.filter(e => e.id !== id);
-    localStorage.setItem(STORAGE_KEYS.journal, JSON.stringify(entries));
-    renderEntries();
-}
-
-// Shloka
-function renderShloka() {
-    const text = localStorage.getItem(STORAGE_KEYS.shloka) || '';
-    document.getElementById('shloka-text').value = text;
-    document.getElementById('shloka-display').textContent = text;
-}
-
-document.getElementById('shloka-text').addEventListener('input', function(e) {
-    localStorage.setItem(STORAGE_KEYS.shloka, e.target.value);
-    renderShloka();
+    tasks.push(newTask);
+    saveToLocal('tasks', tasks);
+    renderTasks();
+    this.reset();
 });
 
-// Ideas
-let ideas = JSON.parse(localStorage.getItem(STORAGE_KEYS.ideas)) || [];
+function filterTasks(filter) {
+    currentTaskFilter = filter;
+    document.getElementById('active-task-filter').textContent = filter;
+    
+    document.querySelectorAll('.small-button').forEach(btn => btn.classList.remove('active-filter'));
+    document.getElementById(`filter-${filter.toLowerCase()}`).classList.add('active-filter');
 
-function addIdea() {
-    const text = document.getElementById('idea-note').value;
-    const pinned = document.getElementById('pin-idea').checked;
-    if (text) {
-        ideas.push({ text, date: new Date().toISOString(), pinned, id: Date.now() });
-        saveIdeas();
-        document.getElementById('idea-note').value = '';
-        document.getElementById('pin-idea').checked = false;
-        renderIdeas();
+    renderTasks();
+}
+
+function renderTasks() {
+    const list = document.getElementById('task-list');
+    list.innerHTML = '';
+    
+    const today = new Date().toISOString().slice(0, 10);
+    
+    let filteredTasks = tasks;
+    
+    if (currentTaskFilter === 'Today') {
+        filteredTasks = tasks.filter(t => t.deadline === today || !t.deadline);
+    } else if (currentTaskFilter === 'Upcoming') {
+        filteredTasks = tasks.filter(t => t.deadline > today);
+    }
+    
+    // Sort: Not Completed first, then by deadline
+    filteredTasks.sort((a, b) => {
+        if (a.status !== 'Complete' && b.status === 'Complete') return -1;
+        if (a.status === 'Complete' && b.status !== 'Complete') return 1;
+        if (a.deadline && b.deadline) return new Date(a.deadline) - new Date(b.deadline);
+        return 0;
+    });
+
+    if (filteredTasks.length === 0) {
+        list.innerHTML = `<li>No ${currentTaskFilter.toLowerCase()} tasks found.</li>`;
+        return;
+    }
+
+    filteredTasks.forEach(task => {
+        const li = document.createElement('li');
+        li.className = `task-item ${task.status === 'Complete' ? 'complete' : ''}`;
+        
+        const deadlineText = task.deadline ? new Date(task.deadline).toLocaleDateString() : 'No Deadline';
+
+        li.innerHTML = `
+            <div class="task-info">
+                <strong>${task.title}</strong>
+                <p><small>Subject: ${task.subject || 'General'} | Due: ${deadlineText}</small></p>
+            </div>
+            <div>
+                <select class="task-status status-${task.status.replace(/\s/g, '')}" onchange="updateTaskStatus(${task.id}, this.value)">
+                    <option value="Not Started" ${task.status === 'Not Started' ? 'selected' : ''}>Not Started</option>
+                    <option value="Half Finished" ${task.status === 'Half Finished' ? 'selected' : ''}>Half Finished</option>
+                    <option value="Complete" ${task.status === 'Complete' ? 'selected' : ''}>Complete</option>
+                </select>
+                <button onclick="deleteTask(${task.id})" class="small-button secondary-button">Delete</button>
+            </div>
+        `;
+        list.appendChild(li);
+    });
+    
+    updateDashboard(); // Keep dashboard stats fresh
+}
+
+function updateTaskStatus(id, newStatus) {
+    const taskIndex = tasks.findIndex(t => t.id === id);
+    if (taskIndex > -1) {
+        tasks[taskIndex].status = newStatus;
+        if (newStatus === 'Complete') {
+            tasks[taskIndex].completedDate = new Date().toISOString().slice(0, 10);
+        } else {
+            tasks[taskIndex].completedDate = null;
+        }
+        saveToLocal('tasks', tasks);
+        renderTasks();
     }
 }
 
-function renderIdeas() {
-    let sorted = [...ideas];
-    const sortBy = document.querySelector('.sort-ideas button.active')?.textContent || 'By Time';
-    if (sortBy === 'Pinned First') {
-        sorted.sort((a, b) => b.pinned - a.pinned || new Date(b.date) - new Date(a.date));
+function deleteTask(id) {
+    tasks = tasks.filter(t => t.id !== id);
+    saveToLocal('tasks', tasks);
+    renderTasks();
+}
+
+document.getElementById('clear-completed-button').addEventListener('click', () => {
+    if (confirm('Are you sure you want to clear ALL completed tasks?')) {
+        tasks = tasks.filter(t => t.status !== 'Complete');
+        saveToLocal('tasks', tasks);
+        renderTasks();
+    }
+});
+
+// --- SYLLABUS TRACKER ---
+
+document.getElementById('add-subject-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('subject-name').value;
+    const topicsText = document.getElementById('subject-topics').value;
+    
+    const topics = topicsText.split('\n')
+                             .map(t => t.trim())
+                             .filter(t => t.length > 0)
+                             .map((topic, index) => ({
+                                 id: index,
+                                 name: topic,
+                                 completed: false
+                             }));
+
+    const newSubject = {
+        id: Date.now(),
+        name,
+        topics
+    };
+
+    subjects.push(newSubject);
+    saveToLocal('subjects', subjects);
+    renderSubjects();
+    this.reset();
+});
+
+function renderSubjects() {
+    const list = document.getElementById('syllabus-list');
+    list.innerHTML = '';
+
+    if (subjects.length === 0) {
+        list.innerHTML = '<p>No subjects added yet.</p>';
+        return;
+    }
+
+    subjects.forEach(subject => {
+        const completedCount = subject.topics.filter(t => t.completed).length;
+        const totalCount = subject.topics.length;
+        const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+        const div = document.createElement('div');
+        div.className = 'syllabus-subject card';
+        
+        let topicsHtml = subject.topics.map(topic => `
+            <li>
+                <input type="checkbox" id="topic-${subject.id}-${topic.id}" 
+                       ${topic.completed ? 'checked' : ''} 
+                       onclick="toggleTopicCompletion(${subject.id}, ${topic.id})">
+                <label for="topic-${subject.id}-${topic.id}">${topic.name}</label>
+            </li>
+        `).join('');
+
+        div.innerHTML = `
+            <h3>${subject.name} <button onclick="deleteSubject(${subject.id})" class="small-button secondary-button">Delete</button></h3>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: ${percentage}%;">
+                    ${percentage}%
+                </div>
+            </div>
+            <ul class="topics-list">
+                ${topicsHtml}
+            </ul>
+        `;
+        list.appendChild(div);
+    });
+    
+    updateDashboard(); // Update overall progress on the dashboard
+}
+
+function toggleTopicCompletion(subjectId, topicId) {
+    const subjectIndex = subjects.findIndex(s => s.id === subjectId);
+    if (subjectIndex > -1) {
+        const topic = subjects[subjectIndex].topics.find(t => t.id === topicId);
+        if (topic) {
+            topic.completed = !topic.completed;
+            saveToLocal('subjects', subjects);
+            renderSubjects();
+        }
+    }
+}
+
+function deleteSubject(id) {
+    if (confirm('Are you sure you want to delete this subject and all its progress?')) {
+        subjects = subjects.filter(s => s.id !== id);
+        saveToLocal('subjects', subjects);
+        renderSubjects();
+    }
+}
+
+// --- LOCKED JOURNAL ---
+
+function loginJournal() {
+    const input = document.getElementById('journal-password').value;
+    if (input === PASSWORD) {
+        localStorage.setItem('journalUnlocked', 'true');
+        checkJournalLock();
     } else {
-        sorted.sort((a, b) => new Date(b.date) - new Date(a.date));
+        alert('Incorrect Password. Try again.');
     }
-    const list = document.getElementById('ideas-list');
-    list.innerHTML = sorted.map(idea => `
-        <li ${idea.pinned ? 'style="background:#2196F3;color:white;"' : ''}>
-            <p>${idea.text}</p>
-            <small>${new Date(idea.date).toLocaleDateString()}</small>
-            ${idea.pinned ? '<strong>Pinned</strong>' : ''}
-        </li>
-    `).join('');
 }
 
-function sortIdeas(type) {
-    document.querySelectorAll('.sort-ideas button').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-    renderIdeas();
-}
-
-function saveIdeas() {
-    localStorage.setItem(STORAGE_KEYS.ideas, JSON.stringify(ideas));
-}
-
-function loadIdeas() {
-    ideas = JSON.parse(localStorage.getItem(STORAGE_KEYS.ideas)) || [];
-}
-
-// History for analysis and progress
-let history = JSON.parse(localStorage.getItem(STORAGE_KEYS.history)) || [];
-
-function logHistory(type) {
-    const today = new Date().toISOString().split('T')[0];
-    let entry = history.find(h => h.date === today);
-    if (!entry) {
-        entry = { date: today, tasks: 0, focus: 0 };
-        history.push(entry);
+document.getElementById('add-journal-entry-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const text = document.getElementById('journal-entry-text').value.trim();
+    if (text) {
+        const newEntry = {
+            id: Date.now(),
+            timestamp: new Date().toLocaleString(),
+            content: text
+        };
+        journalEntries.unshift(newEntry); // Add to the start
+        saveToLocal('journalEntries', journalEntries);
+        renderJournalEntries();
+        this.reset();
     }
-    if (type === 'task') entry.tasks++;
-    if (type === 'focus') entry.focus += (isFocus ? parseInt(document.getElementById('focus-min').value) * 60 : 0);
-    saveHistory();
-}
+});
 
-function saveHistory() {
-    localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(history));
-}
-
-function loadHistory() {
-    history = JSON.parse(localStorage.getItem(STORAGE_KEYS.history)) || [];
-}
-
-// Weekly Analysis
-function updateWeeklyAnalysis() {
-    const now = new Date();
-    const weekStart = new Date(now.getTime() - (now.getDay() - 1) * 24 * 60 * 60 * 1000);
-    const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000);
-    const weekHistory = history.filter(h => {
-        const d = new Date(h.date);
-        return d >= weekStart && d <= weekEnd;
-    });
-    const weeklyTasks = weekHistory.reduce((sum, h) => sum + h.tasks, 0);
-    const weeklyFocus = weekHistory.reduce((sum, h) => sum + h.focus, 0) / 60;
-    const totalTopics = subjects.reduce((sum, s) => sum + s.topics.length, 0);
-    const completedTopics = subjects.reduce((sum, s) => sum + s.topics.filter(t => t.completed).length, 0);
-    const weeklySyllabus = totalTopics > 0 ? (completedTopics / totalTopics * 100) : 0;
-    document.getElementById('weekly-tasks').textContent = weeklyTasks;
-    document.getElementById('weekly-focus').textContent = weeklyFocus.toFixed(1);
-    document.getElementById('weekly-syllabus').textContent = weeklySyllabus.toFixed(1);
-    // Horizontal bars (assume max 40 hours, 50 tasks)
-    document.getElementById('hours-bar').style.width = Math.min(weeklyFocus / 40 * 100, 100) + '%';
-    document.getElementById('tasks-bar').style.width = Math.min(weeklyTasks / 50 * 100, 100) + '%';
-}
-
-// Progress bars (monthly)
-function updateProgressBars() {
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-    const monthHistory = history.filter(h => h.date >= monthStart);
-    const monthlyHours = monthHistory.reduce((sum, h) => sum + h.focus / 60, 0);
-    const monthlyTasks = monthHistory.reduce((sum, h) => sum + h.tasks, 0);
-    const activeDays = new Set(monthHistory.map(h => h.date)).size;
-    const consistency = (activeDays / 30 * 100);
-    document.getElementById('monthly-hours').style.width = Math.min(monthlyHours / 200 * 100, 100) + '%'; // assume max 200h
-    document.getElementById('monthly-tasks').style.width = Math.min(monthlyTasks / 200 * 100, 100) + '%'; // max 200
-    document.getElementById('consistency-bar').style.width = consistency + '%';
-}
-
-// Charts
-let syllabusPie, pomodoroLine, tasksLine;
-
-function updateCharts() {
-    // Syllabus Pie
-    const totalTopics = subjects.reduce((sum, s) => sum + s.topics.length, 0);
-    const completedTopics = subjects.reduce((sum, s) => sum + s.topics.filter(t => t.completed).length, 0);
-    const ctxPie = document.getElementById('syllabus-pie').getContext('2d');
-    if (syllabusPie) syllabusPie.destroy();
-    syllabusPie = new Chart(ctxPie, {
-        type: 'pie',
-        data: {
-            labels: ['Completed', 'Pending'],
-            datasets: [{ data: [completedTopics, totalTopics - completedTopics], backgroundColor: ['#2196F3', '#E3F2FD'] }]
-        },
-        options: { responsive: true }
-    });
-
-    // Pomodoro Line (focus sessions per day last 7 days)
-    const last7Days = [];
-    for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split('T')[0];
-        const sessions = history.filter(h => h.date === dateStr).length; // each focus log as session
-        last7Days.push(sessions);
-    }
-    const ctxPom = document.getElementById('pomodoro-line').getContext('2d');
-    if (pomodoroLine) pomodoroLine.destroy();
-    pomodoroLine = new Chart(ctxPom, {
-        type: 'line',
-        data: {
-            labels: last7Days.map((_, i) => `Day ${7-i}`),
-            datasets: [{ label: 'Sessions', data: last7Days, borderColor: '#2196F3' }]
-        },
-        options: { responsive: true }
-    });
-
-    // Tasks Line (tasks per week last 4 weeks)
-    const last4Weeks = [];
-    for (let i = 3; i >= 0; i--) {
-        const weekStart = new Date();
-        weekStart.setDate(weekStart.getDate() - (weekStart.getDay() + i * 7));
-        const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000);
-        const weekTasks = history.filter(h => {
-            const d = new Date(h.date);
-            return d >= weekStart && d <= weekEnd;
-        }).reduce((sum, h) => sum + h.tasks, 0);
-        last4Weeks.push(weekTasks);
-    }
-    const ctxTasks = document.getElementById('tasks-line').getContext('2d');
-    if (tasksLine) tasksLine.destroy();
-    tasksLine = new Chart(ctxTasks, {
-        type: 'line',
-        data: {
-            labels: last4Weeks.map((_, i) => `Week ${4-i}`),
-            datasets: [{ label: 'Tasks', data: last4Weeks, borderColor: '#2196F3' }]
-        },
-        options: { responsive: true }
+function renderJournalEntries() {
+    const list = document.getElementById('journal-entries-list');
+    list.innerHTML = '';
+    
+    journalEntries.forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'journal-entry';
+        
+        div.innerHTML = `
+            <small>${entry.timestamp}</small>
+            <p>${entry.content}</p>
+            <div class="entry-actions">
+                <button onclick="editJournalEntry(${entry.id})" class="small-button">Edit</button>
+                <button onclick="deleteJournalEntry(${entry.id})" class="small-button secondary-button">Delete</button>
+            </div>
+        `;
+        list.appendChild(div);
     });
 }
 
-function updateTimerStatus() {
-    updateTimerDisplay();
-}
+function editJournalEntry(id) {
+    const entryIndex = journalEntries.findIndex(e => e.id === id);
+    i
