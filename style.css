@@ -1,161 +1,457 @@
+/* Custom Scrollbar for aesthetic appeal */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Light Gray */
+}
+::-webkit-scrollbar-thumb {
+    background: #4A90E2; /* Primary Blue */
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #3A7BD5; /* Darker Blue */
+}
+
+/* Base Styles & Theme */
 body {
     font-family: 'Patrick Hand', cursive;
-    background-color: #E3F2FD;
-    color: #2196F3;
+    background-color: #F8F9FA; /* Very light background for airy feel (white/light blue) */
+    color: #333333; /* Dark text */
     margin: 0;
-    padding: 20px;
+    padding: 0;
     line-height: 1.6;
 }
 
+/* Color Palette */
+:root {
+    --color-primary: #4A90E2; /* Medium Blue */
+    --color-secondary: #E3F2FD; /* Very Light Blue/White Accent */
+    --color-text: #333333;
+    --color-background: #FFFFFF; /* Pure White for cards/main area */
+    --color-success: #6DD5ED; /* Cyan/Light Blue for completion */
+    --color-progress: #6D72EE; /* Deeper Blue/Purple for progress */
+    --color-danger: #D0021B; /* Red for alert */
+}
+
 header {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-h1 {
-    color: #2196F3;
-    font-size: 2.5em;
-}
-
-nav {
+    background-color: var(--color-primary);
+    color: var(--color-background);
+    padding: 15px 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.2em;
 }
 
 nav button {
-    background: #BBDEFB;
+    background: none;
     border: none;
+    color: var(--color-background);
     padding: 10px 15px;
-    margin: 5px;
-    border-radius: 20px;
+    margin-left: 5px;
     cursor: pointer;
     font-family: inherit;
-    color: #2196F3;
+    font-size: 1.1em;
+    border-radius: 20px;
+    transition: background-color 0.2s, color 0.2s;
 }
 
-nav button:hover, nav button.active {
-    background: #2196F3;
-    color: white;
+nav button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
-.tab-content {
+main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* General Component Styling */
+.page {
     display: none;
+    animation: fadeIn 0.5s ease-out;
 }
-
-.tab-content.active {
+.page.active {
     display: block;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .card {
-    background: white;
+    background-color: var(--color-background);
     border-radius: 15px;
-    padding: 20px;
+    padding: 25px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); /* Soft, airy shadow */
+    border: 1px solid var(--color-secondary); /* Minimal border for definition */
 }
 
-input, textarea, label {
-    display: block;
-    margin: 10px 0;
+h2, h3 {
+    color: var(--color-primary);
+    margin-top: 0;
+    border-bottom: 2px solid var(--color-secondary);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* Forms and Inputs */
+input[type="text"], input[type="date"], input[type="number"], input[type="password"], textarea {
     width: 100%;
-    max-width: 300px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #CCCCCC;
+    border-radius: 8px;
+    box-sizing: border-box;
     font-family: inherit;
+    font-size: 1em;
 }
 
-button {
-    background: #2196F3;
-    color: white;
+textarea {
+    resize: vertical;
+}
+
+.action-button, .small-button {
+    font-family: inherit;
+    font-size: 1em;
+    padding: 10px 20px;
     border: none;
-    padding: 10px 15px;
-    border-radius: 15px;
+    border-radius: 20px;
     cursor: pointer;
-    font-family: inherit;
+    transition: background-color 0.2s, transform 0.1s;
+    margin-right: 5px;
 }
 
-button:hover {
-    background: #1976D2;
+.action-button {
+    background-color: var(--color-primary);
+    color: var(--color-background);
+    margin-top: 10px;
 }
 
-ul {
+.action-button:hover {
+    background-color: #3A7BD5;
+    transform: translateY(-1px);
+}
+
+.secondary-button {
+    background-color: #CCCCCC;
+    color: var(--color-text);
+}
+.secondary-button:hover {
+    background-color: #B0B0B0;
+}
+
+.small-button {
+    padding: 8px 15px;
+    font-size: 0.9em;
+    background-color: var(--color-secondary);
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+}
+.small-button.active-filter {
+    background-color: var(--color-primary);
+    color: var(--color-background);
+}
+.small-button:hover:not(.active-filter) {
+    background-color: #DDEBFD;
+}
+
+/* Dashboard Specific Styles */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.motivation-card {
+    background: linear-gradient(135deg, var(--color-primary), #6DD5ED);
+    color: var(--color-background);
+    text-align: center;
+    padding: 30px;
+    margin-bottom: 20px;
+}
+.motivation-card h2 {
+    color: var(--color-background);
+    border-bottom-color: rgba(255, 255, 255, 0.4);
+}
+.motivation-card p {
+    font-size: 1.5em;
+    font-style: italic;
+    margin: 10px 0 0;
+}
+
+/* Timer Specific Styles */
+.timer-controls {
+    text-align: center;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+#timer-circle-container {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    margin: 20px auto;
+}
+
+.timer-circle {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.timer-circle-background {
+    fill: none;
+    stroke: var(--color-secondary);
+    stroke-width: 10;
+}
+
+.timer-circle-progress {
+    fill: none;
+    stroke: var(--color-primary);
+    stroke-width: 10;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear;
+}
+
+#timer-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3em;
+    color: var(--color-text);
+}
+
+#timer-mode {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--color-progress);
+    margin-bottom: 20px;
+}
+
+.timer-settings label, .timer-settings input {
+    margin: 0 5px;
+}
+.timer-settings input {
+    width: 60px;
+    display: inline-block;
+    text-align: center;
+}
+
+/* To-Do List & General List Styling */
+#task-list, #syllabus-list, #journal-entries-list, #notes-list {
     list-style: none;
     padding: 0;
 }
 
-li {
-    background: #BBDEFB;
-    margin: 10px 0;
-    padding: 10px;
+.task-item, .syllabus-subject, .journal-entry, .note-item, .shloka-display-text {
+    background-color: var(--color-secondary);
+    padding: 15px;
     border-radius: 10px;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 20px;
-    background: #E3F2FD;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.progress-bar div {
-    height: 100%;
-    background: #2196F3;
-    transition: width 0.3s;
-}
-
-#timer-display {
-    font-size: 2em;
-    text-align: center;
-    margin: 20px 0;
-}
-
-.circular-progress {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto;
-}
-
-.todo-views {
+    margin-bottom: 10px;
     display: flex;
-    gap: 10px;
-    margin: 10px 0;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid var(--color-primary);
 }
 
-.horizontal-bar {
-    margin: 10px 0;
+.task-info {
+    flex-grow: 1;
 }
 
-.bar-container {
-    width: 100%;
-    height: 20px;
-    background: #E3F2FD;
-    border-radius: 10px;
-    overflow: hidden;
+.task-item.complete {
+    border-left-color: var(--color-success);
+    opacity: 0.7;
+    text-decoration: line-through;
 }
 
-.bar-container div {
-    height: 100%;
-    background: #2196F3;
-    transition: width 0.3s;
+.task-item button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    font-size: 0.8em;
 }
 
-select {
-    margin: 10px 0;
+/* Task Status Dropdown */
+.task-status {
     padding: 5px;
+    border-radius: 5px;
     font-family: inherit;
+    font-size: 0.9em;
+    margin-right: 15px;
+}
+.status-NotStarted { background-color: #FFCDD2; } /* Light Red */
+.status-HalfFinished { background-color: #FFF9C4; } /* Light Yellow */
+.status-Complete { background-color: #C8E6C9; } /* Light Green */
+
+/* Syllabus Specific */
+.syllabus-subject {
+    flex-direction: column;
+    align-items: flex-start;
 }
 
-#shloka-display {
-    background: #BBDEFB;
-    padding: 10px;
-    border-radius: 10px;
-    min-height: 50px;
+.progress-bar-container {
+    background-color: #E0E0E0;
+    border-radius: 5px;
+    overflow: hidden;
     margin-top: 10px;
 }
 
-.sort-ideas {
+.progress-bar {
+    height: 20px;
+    background-color: var(--color-progress);
+    text-align: right;
+    color: var(--color-background);
+    line-height: 20px;
+    padding-right: 5px;
+    transition: width 0.5s ease-in-out;
+    font-size: 0.8em;
+}
+
+.topics-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+    width: 100%;
+}
+.topics-list li {
+    padding: 5px 0;
     display: flex;
-    gap: 10px;
-    margin: 10px 0;
+    align-items: center;
+}
+.topics-list input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+}
+
+/* Progress Visualization */
+.analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.chart-canvas {
+    max-height: 300px;
+}
+
+/* Custom Horizontal Bars (Dashboard/Analysis) */
+.custom-bars-container {
+    display: flex;
+    flex-direction: column;
+}
+.custom-bars-container label {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--color-primary);
+}
+.custom-bars-container input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 10px;
+    background: var(--color-secondary);
+    border-radius: 5px;
+    margin-bottom: 5px;
+}
+.custom-bars-container input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-progress);
+    cursor: pointer;
+}
+.custom-bars-container span {
+    align-self: flex-end;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.monthly-bar {
+    margin-bottom: 15px;
+}
+.monthly-bar p {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--color-text);
+}
+.monthly-bar .bar-fill {
+    height: 15px;
+    background-color: var(--color-progress);
+    border-radius: 8px;
+    display: inline-block;
+    transition: width 0.5s;
+}
+.monthly-bar span {
+    margin-left: 10px;
+    font-weight: normal;
+}
+
+/* Journal/Notes Styling */
+.journal-entry, .note-item {
+    border-left-color: var(--color-progress);
+    display: block;
+    position: relative;
+    padding-right: 100px; /* Space for buttons */
+}
+
+.journal-entry p, .note-item p {
+    white-space: pre-wrap;
+    margin: 5px 0;
+}
+
+.entry-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+.entry-actions button {
+    margin-left: 5px;
+    padding: 5px 8px;
+    font-size: 0.8em;
+}
+
+.shloka-card {
+    background-color: #F0F8FF; /* Lightest Blue */
+    text-align: center;
+}
+#display-shloka {
+    font-size: 1.2em;
+    font-style: italic;
+    color: #6A1B9A; /* A deep purple for contrast */
+    white-space: pre-wrap;
+    margin-top: 15px;
+}
+
+.note-item.pinned {
+    border: 2px solid #FFD700; /* Gold border for pinned notes */
+    background-color: #FFFBEA;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Status Colors for Dashboard Tasks */
+.dashboard-task-complete {
+    color: var(--color-success);
+    text-decoration: line-through;
+}
+.dashboard-task-inprogress {
+    color: var(--color-progress);
+}
+.dashboard-task-notstarted {
+    color: var(--color-danger);
 }
