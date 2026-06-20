@@ -3,245 +3,360 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lakshya </title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+    <title>For Pita Shree 💙</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0a2540 0%, #1e3a5f 100%);
+            color: #fff;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+        .landing {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        header h1 {
+            font-size: 3.2rem;
+            margin-bottom: 2rem;
+            color: #a5d6ff;
+            text-shadow: 0 0 20px rgba(165, 214, 255, 0.5);
+            animation: title-glow 2s ease-in-out infinite alternate;
+        }
+        .gift-container {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            cursor: pointer;
+            margin: 2rem 0;
+        }
+        .gift-box { width: 100%; height: 100%; position: relative; transition: transform 0.4s ease; }
+        .gift-box:hover { transform: scale(1.05); }
+        .gift-body {
+            width: 180px; height: 140px;
+            background: linear-gradient(#1e88e5, #1565c0);
+            position: absolute; top: 60px; left: 20px;
+            border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .gift-lid {
+            width: 200px; height: 50px;
+            background: linear-gradient(#42a5f5, #1e88e5);
+            position: absolute; top: 40px; left: 10px;
+            border-radius: 15px 15px 5px 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 2;
+            transition: transform 0.6s ease;
+        }
+        .ribbon {
+            width: 40px; height: 160px;
+            background: #ff4081;
+            position: absolute; top: 30px; left: 90px;
+            border-radius: 5px;
+        }
+        .ribbon::before, .ribbon::after {
+            content: ''; position: absolute; width: 40px; height: 40px;
+            background: #ff4081; top: 50px; border-radius: 50%;
+        }
+        .ribbon::before { left: -20px; }
+        .ribbon::after { right: -20px; }
+        .click-hint {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            color: #a5d6ff;
+            animation: pulse 2s infinite;
+        }
+
+        .content { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+        .nav {
+            display: flex; justify-content: center; gap: 20px; margin-bottom: 60px; flex-wrap: wrap;
+        }
+        .nav-btn {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 12px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .nav-btn:hover {
+            background: #42a5f5;
+            transform: translateY(-3px);
+        }
+
+        .card, .hero-card, .table-card {
+            background: rgba(255,255,255,0.95);
+            color: #0a2540;
+            border-radius: 25px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(10, 37, 64, 0.15);
+            transition: all 0.4s ease;
+        }
+        .card:hover, .hero-card:hover, .table-card:hover {
+            transform: translateY(-10px);
+        }
+        .hero-card {
+            text-align: center;
+            padding: 60px 40px;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        }
+        .hero-card h1 { font-size: 4rem; color: #0a2540; margin: 20px 0; }
+        .aliases {
+            display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;
+        }
+        .aliases span {
+            background: #1565c0;
+            color: white;
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-weight: 500;
+        }
+
+        h3 { font-size: 2.2rem; margin-bottom: 25px; color: #0a2540; text-align: center; }
+        ul { list-style: none; }
+        ul li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(10,37,64,0.1);
+            font-size: 1.1rem;
+            position: relative;
+            padding-left: 30px;
+        }
+        ul li:before { content: '💙'; position: absolute; left: 0; color: #42a5f5; }
+
+        .quote {
+            background: #f0f7ff;
+            border-left: 6px solid #42a5f5;
+            padding: 25px;
+            margin: 20px 0;
+            font-style: italic;
+            font-size: 1.25rem;
+            border-radius: 0 15px 15px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 18px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #0a2540;
+            color: white;
+        }
+        tr:nth-child(even) { background: #f8fbff; }
+
+        footer {
+            text-align: center;
+            padding: 60px 20px 40px;
+            color: #a5d6ff;
+        }
+
+        @keyframes title-glow {
+            from { text-shadow: 0 0 20px rgba(165, 214, 255, 0.5); }
+            to { text-shadow: 0 0 40px rgba(165, 214, 255, 0.8); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .confetti-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1000; opacity: 0;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.6rem; }
+            .hero-card h1 { font-size: 3rem; }
+            .gift-container { width: 180px; height: 180px; }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Lakshya</h1>
-        <nav>
-            <button onclick="showSection('dashboard')">🧭 Dashboard</button>
-            <button onclick="showSection('timer')">⏲️ Timer</button>
-            <button onclick="showSection('todo')">✅ To-Do List</button>
-            <button onclick="showSection('syllabus')">📚 Syllabus</button>
-            <button onclick="showSection('analysis')">📊 Progress</button>
-            <button onclick="showSection('journal')">📓 Journal</button>
-            <button onclick="showSection('notes')">💡 Notes</button>
+    <!-- Landing -->
+    <section id="landing" class="landing">
+        <header>
+            <h1>For Pita Shree 💙</h1>
+        </header>
+        <div class="gift-container">
+            <div id="gift-box" class="gift-box">
+                <div class="gift-lid"></div>
+                <div class="gift-body"></div>
+                <div class="ribbon"></div>
+            </div>
+        </div>
+        <div class="click-hint">Tap the Gift Box 🎁</div>
+    </section>
+
+    <!-- Main Content -->
+    <div id="content" class="content hidden">
+        <nav class="nav">
+            <a href="#profile" class="nav-btn">Character Profile</a>
+            <a href="#natkhat-papa" class="nav-btn">Natkhat & Papa</a>
         </nav>
-    </header>
 
-    <main>
-        <section id="dashboard" class="page active">
-            <div class="card motivation-card">
-                <h2>✨ Quote ✨</h2>
-                <p id="daily-motivation"></p>
-            </div>
-
-            <div class="dashboard-grid">
-                <div class="card">
-                    <h2>🎯 Long-Term Goals</h2>
-                    <ul>
-                        <li>99%+ in X, XI, and XII</li>
-                        <li>100/100 in all subjects</li>
-                        <li>CLAT AIR 1</li>
-                        <li>UPSC AIR 1</li>
-                    </ul>
-                    <div id="long-term-progress" class="progress-bar-container">
-                        </div>
-                </div>
-
-                <div class="card">
-                    <h2>⏲️ Timer Status</h2>
-                    <p id="timer-status">Ready to Focus</p>
-                    <p id="timer-display-dashboard">25:00</p>
-                </div>
-                
-                <div class="card">
-                    <h2>✅ Today's Tasks (<span id="today-tasks-count">0</span>)</h2>
-                    <ul id="dashboard-today-tasks">
-                        <li>No tasks for today.</li>
-                    </ul>
-                    <button onclick="showSection('todo')" class="small-button">Go to To-Do</button>
-                </div>
-
-                <div class="card">
-                    <h2>📊 Productivity Stats</h2>
-                    <div class="stats-row">
-                        <p>Focus Sessions Today: <span id="stats-focus-today">0</span></p>
-                    </div>
-                    <div class="stats-row">
-                        <p>Tasks Completed This Week: <span id="stats-tasks-week">0</span></p>
-                    </div>
-                    <div class="stats-row">
-                        <p>Syllabus Overall: <span id="stats-syllabus-overall">0%</span></p>
-                    </div>
+        <!-- Profile Section -->
+        <section id="profile" class="section">
+            <div class="hero-card">
+                <h2>The Best Father Award Goes To 🏆</h2>
+                <h1>Papa</h1>
+                <p class="subtitle">Also Known As</p>
+                <div class="aliases">
+                    <span>Pita Shree</span>
+                    <span>KVPS</span>
+                    <span>Cutie Pie</span>
+                    <span>Pocket Google</span>
                 </div>
             </div>
-        </section>
 
-        <section id="timer" class="page">
-            <div class="card timer-controls">
-                <h2>⏲️ Focus </h2>
-                <div id="timer-circle-container">
-                    <svg viewBox="0 0 100 100" class="timer-circle">
-                        <circle cx="50" cy="50" r="45" class="timer-circle-background"></circle>
-                        <circle cx="50" cy="50" r="45" class="timer-circle-progress" id="timer-progress-svg"></circle>
-                    </svg>
-                    <div id="timer-display">25:00</div>
-                </div>
-                
-                <p id="timer-mode">Focus Mode</p>
-
-                <div class="timer-buttons">
-                    <button id="start-pause-button" class="action-button">Start</button>
-                    <button id="reset-button" class="action-button secondary-button">Reset</button>
-                </div>
-
-                <div class="timer-settings">
-                    <label for="focus-duration">Focus (min):</label>
-                    <input type="number" id="focus-duration" value="25" min="1">
-                    <label for="break-duration">Break (min):</label>
-                    <input type="number" id="break-duration" value="5" min="1">
-                    <button id="apply-timer-settings" class="small-button">Apply</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="todo" class="page">
             <div class="card">
-                <h2>➕ Add New Task</h2>
-                <form id="add-task-form">
-                    <input type="text" id="task-title" placeholder="Task Title" required>
-                    <input type="date" id="task-deadline">
-                    <input type="text" id="task-subject" placeholder="Subject/Category">
-                    <button type="submit" class="action-button">Add Task</button>
-                </form>
+                <h3>Traits</h3>
+                <ul>
+                    <li>Professional mood changer (switches mood in approximately 10–15 seconds)</li>
+                    <li>"Take One More Roti" specialist</li>
+                    <li>Can be intimidating and a cutie pie within the same 5 minutes</li>
+                    <li>Can lecture for 45 minutes and immediately crack a joke</li>
+                    <li>Somehow always right</li>
+                </ul>
             </div>
 
-            <div class="card todo-controls">
-                <h2>🗂️ Task Organization</h2>
-                <button onclick="filterTasks('Today')" id="filter-today" class="small-button">Today</button>
-                <button onclick="filterTasks('Upcoming')" id="filter-upcoming" class="small-button">Upcoming</button>
-                <button onclick="filterTasks('All')" id="filter-all" class="small-button active-filter">All Tasks</button>
-                <button id="clear-completed-button" class="small-button secondary-button">Clear Completed</button>
-            </div>
-
-            <div class="card task-list-card">
-                <h2>📝 Task List (<span id="active-task-filter">All</span>)</h2>
-                <ul id="task-list">
-                    </ul>
-            </div>
-        </section>
-
-        <section id="syllabus" class="page">
             <div class="card">
-                <h2>➕ Add Subject</h2>
-                <form id="add-subject-form">
-                    <input type="text" id="subject-name" placeholder="Subject Name" required>
-                    <textarea id="subject-topics" placeholder="Enter topics/chapters, one per line..." rows="3" required></textarea>
-                    <button type="submit" class="action-button">Add Subject</button>
-                </form>
+                <h3>Superpowers</h3>
+                <ul>
+                    <li>Possesses a diabolical number of academic degrees</li>
+                    <li>Food mysteriously tastes better from his plate (scientific investigation ongoing)</li>
+                    <li>Can detect lies and mischief within a 500-meter radius</li>
+                    <li>Can look at Natkhat's face and instantly determine: Mood, Intentions, Hunger level</li>
+                    <li>Can sense laziness from children located three rooms away</li>
+                </ul>
             </div>
 
-            <div class="card syllabus-list-card">
-                <h2>📚 My Subjects</h2>
-                <div id="syllabus-list">
-                    </div>
+            <div class="card">
+                <h3>Famous Quotes</h3>
+                <div class="quote">"Ye UPSC me aayega."</div>
+                <div class="quote">"Survival of the fittest and struggle for existence."</div>
+                <div class="quote">"Be like a Commander."</div>
             </div>
         </section>
 
-        <section id="analysis" class="page">
-            <h2>📈 Progress & Pattern Analysis</h2>
+        <!-- Natkhat & Papa -->
+        <section id="natkhat-papa" class="section">
+            <div class="card">
+                <h2>Natkhat & Papa</h2>
+                <p><strong>Established Scientific Fact</strong></p>
+                <p>Excellent genes detected.</p>
+                <p>Research indicates that Natkhat is becoming more and more like Papa every year.</p>
+            </div>
+
+            <div class="card">
+                <h3>Similarity Table</h3>
+                <table>
+                    <thead>
+                        <tr><th>Trait</th><th>Papa</th><th>Natkhat</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Blue and white obsession</td><td>✅</td><td>✅</td></tr>
+                        <tr><td>Dressing sense</td><td>✅</td><td>✅</td></tr>
+                        <tr><td>Lame jokes</td><td>✅</td><td>✅</td></tr>
+                        <tr><td>Refusing to back down</td><td>✅</td><td>✅</td></tr>
+                        <tr><td>Revolutionary ideology</td><td>✅</td><td>✅</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer>
+            <p>Made with love by Natkhat 💙</p>
+            <p>"Do everything like a Commander."</p>
+        </footer>
+    </div>
+
+    <canvas id="confetti" class="confetti-canvas"></canvas>
+
+    <script>
+        const giftBox = document.getElementById('gift-box');
+        const content = document.getElementById('content');
+        const landing = document.getElementById('landing');
+        const confettiCanvas = document.getElementById('confetti');
+        let confettiCtx, confettiParticles = [];
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * confettiCanvas.width;
+                this.y = Math.random() * confettiCanvas.height - confettiCanvas.height;
+                this.size = Math.random() * 12 + 6;
+                this.speed = Math.random() * 6 + 3;
+                this.angle = Math.random() * 360;
+                this.angleSpeed = Math.random() * 0.1 - 0.05;
+                this.color = ['#42a5f5', '#a5d6ff', '#ffffff', '#ff4081'][Math.floor(Math.random() * 4)];
+            }
+            update() {
+                this.y += this.speed;
+                this.angle += this.angleSpeed;
+                if (this.y > confettiCanvas.height) this.y = -20;
+            }
+            draw() {
+                confettiCtx.save();
+                confettiCtx.translate(this.x, this.y);
+                confettiCtx.rotate(this.angle * Math.PI / 180);
+                confettiCtx.fillStyle = this.color;
+                confettiCtx.fillRect(-this.size/2, -this.size/2, this.size, this.size * 0.6);
+                confettiCtx.restore();
+            }
+        }
+
+        function launchConfetti() {
+            confettiCanvas.style.opacity = '1';
+            for (let i = 0; i < 180; i++) confettiParticles.push(new Particle());
+            const animate = () => {
+                confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+                confettiParticles.forEach((p, i) => {
+                    p.update(); p.draw();
+                    if (p.y > confettiCanvas.height) confettiParticles.splice(i, 1);
+                });
+                if (confettiParticles.length > 0) requestAnimationFrame(animate);
+                else confettiCanvas.style.opacity = '0';
+            };
+            animate();
+        }
+
+        function openGift() {
+            const lid = document.querySelector('.gift-lid');
+            lid.style.transform = 'rotateX(-80deg) translateY(-40px)';
             
-            <div class="analysis-grid">
-                <div class="card">
-                    <h3>Overall Syllabus Completion</h3>
-                    <canvas id="syllabus-pie-chart" class="chart-canvas"></canvas>
-                </div>
-                <div class="card">
-                    <h3>Focus Sessions per Day (Weekly)</h3>
-                    <canvas id="focus-sessions-line-chart" class="chart-canvas"></canvas>
-                </div>
-                <div class="card">
-                    <h3>Tasks Done per Week</h3>
-                    <canvas id="tasks-done-line-chart" class="chart-canvas"></canvas>
-                </div>
-                
-                <div class="card custom-bars-container">
-                    <h3>Tracking Bars</h3>
-                    <label for="weekly-hours-studied">Weekly Hours Studied:</label>
-                    <input type="range" id="weekly-hours-studied" min="0" max="70" value="0">
-                    <span id="weekly-hours-value">0 hrs</span>
-                    
-                    <label for="weekly-tasks-done">Weekly Tasks Done:</label>
-                    <input type="range" id="weekly-tasks-done" min="0" max="50" value="0">
-                    <span id="weekly-tasks-value">0 tasks</span>
-                </div>
-
-                <div class="card monthly-summary-container">
-                    <h3>Monthly Summary</h3>
-                    <div class="monthly-bar">
-                        <p>Study Hours:</p>
-                        <div class="bar-fill" style="width: 50%;"></div>
-                        <span>50%</span>
-                    </div>
-                    <div class="monthly-bar">
-                        <p>Tasks Complete:</p>
-                        <div class="bar-fill" style="width: 75%;"></div>
-                        <span>75%</span>
-                    </div>
-                    <div class="monthly-bar">
-                        <p>Consistency:</p>
-                        <div class="bar-fill" style="width: 90%;"></div>
-                        <span>27/30 days</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="journal" class="page">
-            <div class="card" id="journal-login">
-                <h2>🔒 Locked Journal</h2>
-                <input type="password" id="journal-password" placeholder="Enter Password (jai bhavani)">
-                <button onclick="loginJournal()" class="action-button">Unlock</button>
-            </div>
+            setTimeout(() => launchConfetti(), 300);
             
-            <div class="card hidden" id="journal-content">
-                <h2>📓 Journal</h2>
-                <form id="add-journal-entry-form">
-                    <textarea id="journal-entry-text" placeholder="Write your thoughts, plans, and reflections..." rows="5"></textarea>
-                    <button type="submit" class="action-button">Save Entry</button>
-                </form>
-                
-                <div id="journal-entries-list">
-                    </div>
-            </div>
-        </section>
+            setTimeout(() => {
+                landing.style.opacity = '0';
+                setTimeout(() => {
+                    landing.style.display = 'none';
+                    content.classList.remove('hidden');
+                    content.style.opacity = '1';
+                }, 600);
+            }, 1200);
+        }
 
-        <section id="notes" class="page">
-            <div class="card">
-                <h2>💡 Quick Ideas & Notes</h2>
-                <form id="add-note-form">
-                    <textarea id="note-text" placeholder="Quick-save an idea, thought, or plan..." rows="3"></textarea>
-                    <button type="submit" class="action-button">Save Note</button>
-                </form>
-            </div>
+        giftBox.addEventListener('click', openGift);
 
-            <div class="card">
-                <h2>📜 My Notes</h2>
-                <div class="note-controls">
-                    <button onclick="sortNotes('time')" class="small-button active-filter">Sort by Time</button>
-                    <button onclick="sortNotes('pinned')" class="small-button">Show Pinned</button>
-                </div>
-                <div id="notes-list">
-                    </div>
-            </div>
-
-            <div class="card shloka-card">
-                <h2>🕉️ Shloka </h2>
-                <form id="add-shloka-form">
-                    <textarea id="shloka-text" placeholder="Paste your Shloka or motto here..." rows="2"></textarea>
-                    <button type="submit" class="action-button">Save Shloka</button>
-                </form>
-                <div id="display-shloka">
-                    </div>
-                <button id="delete-shloka-button" class="small-button secondary-button hidden">Delete Shloka</button>
-            </div>
-        </section>
-    </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="script.js"></script>
+        window.onload = () => {
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+            confettiCtx = confettiCanvas.getContext('2d');
+        };
+    </script>
 </body>
 </html>
